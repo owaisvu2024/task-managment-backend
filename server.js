@@ -9,6 +9,7 @@ require('dotenv').config();
 const taskRoutes = require('./routes/taskRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const authRoutes = require('./routes/authRoutes');
+const { error } = require('console');
 
 const app = express();
 const server = http.createServer(app);
@@ -34,6 +35,15 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/auth', authRoutes);
 
+app.get('/',(req,res )=>{
+
+res.send({
+activestatus:true,
+error:false,
+
+})
+
+})
 // Socket.IO event handler
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
@@ -42,6 +52,8 @@ io.on('connection', (socket) => {
     console.log(`User disconnected: ${socket.id}`);
   });
 });
+
+
 
 // Server start
 const PORT = process.env.PORT || 5000;

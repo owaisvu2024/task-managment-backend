@@ -9,21 +9,26 @@ require('dotenv').config();
 const taskRoutes = require('./routes/taskRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const authRoutes = require('./routes/authRoutes');
-const { error } = require('console');
 
 const app = express();
 const server = http.createServer(app);
 
+// NOTE: Frontend ka URL humne environment variable mein rakha hai
+// Isko aap Vercel par bhi set karenge, taake aapki app dono platforms par theek chale
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 // Socket.IO server setup
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000"
-       , // <-- Yahan maine 3000 kar diya hai
+    origin: FRONTEND_URL, 
     methods: ["GET", "POST"]
   }
 });
 
-app.use(cors());
+// Express CORS middleware
+app.use(cors({
+  origin: FRONTEND_URL
+}));
 app.use(express.json());
 
 // Database Connection
@@ -37,14 +42,12 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/auth', authRoutes);
 
 app.get('/',(req,res )=>{
-
-res.send({
-activestatus:true,
-error:false,
-
+  res.send({
+    activestatus:true,
+    error:false,
+  })
 })
 
-})
 // Socket.IO event handler
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
@@ -53,8 +56,6 @@ io.on('connection', (socket) => {
     console.log(`User disconnected: ${socket.id}`);
   });
 });
-
-
 
 // Server start
 const PORT = process.env.PORT || 5000;
